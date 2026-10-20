@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Academy Bot Running Costs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+
+<style>
+/* ---------- tokens: light is the base, both dark paths redefine only these ---------- */
+:root{
+  --bg:#F2F4F3; --surface:#FCFCFB; --surface-2:#EDF0EE; --sunk:#E6EAE8;
+  --ink:#12201C; --ink-2:#5A6B65; --line:#DAE1DE; --line-2:#C6D0CC;
+  --accent:#0E6F5C; --warn:#A9690B; --warn-bg:#FBF2E1; --crit:#A8372A; --crit-bg:#FBEDEB;
+  --s1:#0072B2; --s2:#D55E00; --s3:#009E73; --s4:#B05089;
+  --shadow:0 1px 2px rgba(18,32,28,.06), 0 8px 24px -16px rgba(18,32,28,.25);
+  --focus:#0E6F5C; --veil:rgba(10,20,17,.58);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1413; --surface:#17201E; --surface-2:#1E2926; --sunk:#121A18;
+    --ink:#E7EEEB; --ink-2:#93A49E; --line:#253230; --line-2:#31403C;
+    --accent:#3FBFA0; --warn:#E0A64A; --warn-bg:#241D0F; --crit:#E0705E; --crit-bg:#2A1614;
+    --s1:#3E93D4; --s2:#DE7430; --s3:#0B8A66; --s4:#CE7BAC;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    --focus:#3FBFA0; --veil:rgba(0,0,0,.66);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1413; --surface:#17201E; --surface-2:#1E2926; --sunk:#121A18;
+  --ink:#E7EEEB; --ink-2:#93A49E; --line:#253230; --line-2:#31403C;
+  --accent:#3FBFA0; --warn:#E0A64A; --warn-bg:#241D0F; --crit:#E0705E; --crit-bg:#2A1614;
+  --s1:#3E93D4; --s2:#DE7430; --s3:#0B8A66; --s4:#CE7BAC;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  --focus:#3FBFA0; --veil:rgba(0,0,0,.66);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 16px/1.55 "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:34px 24px 80px}
+h1,h2,h3{font-family:Archivo, ui-sans-serif, system-ui, sans-serif; text-wrap:balance; margin:0}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:3px}
+
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace; font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+}
+.masthead{display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end;
+  justify-content:space-between; padding-bottom:22px; border-bottom:2px solid var(--ink)}
+.masthead h1{font-size:clamp(28px,4.1vw,44px); font-weight:800; letter-spacing:-.022em; line-height:1.04; margin-top:9px}
+.standfirst{color:var(--ink-2); max-width:58ch; margin:11px 0 0; font-size:16.5px}
+.tools{display:flex; gap:8px; flex-wrap:wrap}
+.themer{
+  background:none; border:1px solid var(--line-2); color:var(--ink-2); cursor:pointer;
+  font:500 11px/1 "IBM Plex Mono",monospace; letter-spacing:.1em; text-transform:uppercase;
+  padding:8px 13px; border-radius:100px; white-space:nowrap;
+}
+.themer:hover{color:var(--ink); border-color:var(--ink-2)}
+.themer.lead{color:var(--accent); border-color:color-mix(in srgb, var(--accent) 55%, transparent)}
+.themer.lead:hover{color:var(--surface); background:var(--accent); border-color:var(--accent)}
+
+.scenarios{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:22px 0 26px}
+.scenarios .eyebrow{margin-right:4px}
+.chip{
+  font:600 13.5px/1 "Source Sans 3",sans-serif; cursor:pointer;
+  background:var(--surface); color:var(--ink-2);
+  border:1px solid var(--line-2); border-radius:100px; padding:9px 15px;
+}
+.chip:hover{border-color:var(--ink-2); color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.chip b{font-family:"IBM Plex Mono",monospace; font-weight:500; opacity:.72; margin-left:7px; font-size:12px}
+
+.headline{
+  display:grid; grid-template-columns:minmax(230px,1.15fr) repeat(3,minmax(120px,.72fr));
+  gap:1px; background:var(--line); border:1px solid var(--line);
+  border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:26px;
+}
+.cell{background:var(--surface); padding:19px 21px}
+.cell.lead{background:var(--ink); color:var(--bg)}
+.cell.lead .eyebrow{color:var(--bg); opacity:.62}
+.cell.lead .eyebrow .info{opacity:1}
+.big{font-family:Archivo,sans-serif; font-weight:800; font-size:clamp(38px,5.6vw,54px);
+  letter-spacing:-.03em; line-height:1; display:block; margin:9px 0 5px; font-variant-numeric:tabular-nums}
+.cell .val{font-family:Archivo,sans-serif; font-weight:700; font-size:25px; letter-spacing:-.02em;
+  display:block; margin:9px 0 3px; font-variant-numeric:tabular-nums}
+.cell .note{font-size:13px; color:var(--ink-2); line-height:1.35}
+.cell.lead .note{color:var(--bg); opacity:.66}
+
+.alert{
+  display:none; align-items:flex-start; gap:11px; margin-bottom:26px;
+  border:1px solid var(--crit); border-left-width:4px; background:var(--crit-bg);
+  border-radius:10px; padding:15px 18px; font-size:14.5px;
+}
+.alert.on{display:flex}
+.alert b{color:var(--crit)}
+
+.grid{display:grid; grid-template-columns:352px minmax(0,1fr); gap:26px; align-items:start}
+@media (max-width:940px){ .grid{grid-template-columns:1fr} .headline{grid-template-columns:1fr 1fr} }
+@media (max-width:460px){ .headline{grid-template-columns:1fr} }
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow)}
+.panel > h2{
+  font-size:13px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  padding:15px 19px; border-bottom:1px solid var(--line); color:var(--ink);
+}
+.rail{position:sticky; top:18px}
+@media (max-width:940px){ .rail{position:static} }
+.legendline{padding:11px 19px 12px; border-bottom:1px solid var(--line); font-size:12.5px;
+  color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center}
+.legendline .tag{margin-left:0; margin-right:5px}
+
+.group{border-bottom:1px solid var(--line); padding:16px 19px}
+.group:last-child{border-bottom:0}
+.group > h3{font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-2); margin-bottom:13px; font-family:"IBM Plex Mono",monospace}
+.ctl{margin-bottom:15px}
+.ctl:last-child{margin-bottom:0}
+.ctl-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px}
+.lab{display:inline-flex; align-items:center; flex-wrap:wrap; min-width:0}
+.ctl label{font-size:14.5px; font-weight:600}
+.ctl output{font-family:"IBM Plex Mono",monospace; font-size:13.5px; font-weight:600;
+  color:var(--accent); font-variant-numeric:tabular-nums; white-space:nowrap}
+.hint{font-size:12.5px; color:var(--ink-2); line-height:1.4; margin-top:5px}
+.hint b{color:var(--ink); font-weight:600}
+.tag{
+  display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; padding:2px 6px; border-radius:3px;
+  vertical-align:1.5px; margin-left:6px;
+}
+.tag.m{background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent)}
+.tag.a{background:var(--sunk); color:var(--ink-2)}
+
+input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:20px; background:none; cursor:pointer; margin:0 }
+input[type=range]::-webkit-slider-runnable-track{height:4px; border-radius:2px; background:var(--sunk)}
+input[type=range]::-moz-range-track{height:4px; border-radius:2px; background:var(--sunk)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--accent); border:2px solid var(--surface); margin-top:-6px;
+  box-shadow:0 0 0 1px var(--line-2);
+}
+input[type=range]::-moz-range-thumb{
+  width:16px; height:16px; border-radius:50%; background:var(--accent);
+  border:2px solid var(--surface); box-shadow:0 0 0 1px var(--line-2);
+}
+select{
+  width:100%; font:500 13.5px/1.35 "IBM Plex Mono",monospace; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line-2);
+  border-radius:6px; padding:8px 9px;
+}
+.checkrow{display:flex; align-items:flex-start; gap:2px}
+.checkrow .info{margin-top:2px}
+.check{display:flex; gap:9px; align-items:flex-start; cursor:pointer}
+.check input{margin:3px 0 0; accent-color:var(--accent); width:15px; height:15px; flex:none}
+.check span{font-size:14px; font-weight:600}
+
+/* ---------- folded sections: technical detail, one tap away ---------- */
+details.fold{margin-top:15px; border-top:1px dashed var(--line-2)}
+details.fold > summary{
+  list-style:none; cursor:pointer; display:flex; align-items:center; gap:9px; padding:12px 0 1px;
+  font:600 11px/1.3 "IBM Plex Mono",monospace; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-2); border-radius:4px;
+}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold > summary::before{
+  content:""; flex:none; width:6px; height:6px; margin:0 2px 0 2px;
+  border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  transform:rotate(-45deg); transition:transform .15s ease;
+}
+details.fold[open] > summary::before{transform:rotate(45deg); margin-top:-3px}
+details.fold > summary:hover{color:var(--ink)}
+details.fold > summary .count{margin-left:auto; font-weight:500; letter-spacing:.06em; opacity:.8; white-space:nowrap}
+details.fold > .fold-body{padding-top:14px}
+details.fold.mini{margin-top:4px; border-top:0}
+details.fold.mini > summary{padding-top:4px; color:var(--accent)}
+details.fold.mini > summary:hover{color:var(--ink)}
+details.fold.mini > .fold-body{padding-top:9px}
+
+/* ---------- chart ---------- */
+figure{margin:0; padding:19px}
+.figcap{display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:3px}
+.figcap h3{font-size:17px; font-weight:700; letter-spacing:-.012em}
+.figsub{font-size:13.5px; color:var(--ink-2); margin:2px 0 15px; max-width:66ch}
+.legend{display:flex; flex-wrap:wrap; gap:7px 16px; margin-top:13px}
+.lg{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-2)}
+.sw{width:11px; height:11px; border-radius:3px; flex:none}
+.lg b{color:var(--ink); font-weight:600; font-family:"IBM Plex Mono",monospace;
+  font-size:12.5px; font-variant-numeric:tabular-nums}
+.chartbox{position:relative}
+svg.chart{display:block; width:100%; height:auto; overflow:visible}
+svg.chart text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.tip{
+  position:absolute; pointer-events:none; opacity:0; transition:opacity .09s;
+  background:var(--ink); color:var(--bg); border-radius:7px; padding:9px 11px;
+  font:500 12px/1.5 "IBM Plex Mono",monospace; white-space:nowrap;
+  box-shadow:0 6px 20px -6px rgba(0,0,0,.45); z-index:5; transform:translate(-50%,-100%);
+}
+.tip.on{opacity:1}
+.tip .th{font-weight:600; margin-bottom:5px; font-size:12.5px}
+.tip .tr{display:flex; justify-content:space-between; gap:14px}
+.tip .tr i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:6px}
+.tip .tt{border-top:1px solid rgba(255,255,255,.22); margin-top:5px; padding-top:5px; font-weight:600}
+
+/* ---------- text vs voice ---------- */
+.split{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border-radius:0 0 12px 12px; overflow:hidden}
+@media (max-width:620px){ .split{grid-template-columns:1fr} }
+.kind{background:var(--surface); padding:18px 21px}
+.kind h4{font-family:Archivo,sans-serif; font-size:15px; font-weight:700; margin:0 0 2px;
+  display:flex; align-items:center; gap:8px}
+.kind h4 .info{margin-left:-2px}
+.kind .amt{font-family:Archivo,sans-serif; font-weight:800; font-size:31px; letter-spacing:-.025em;
+  display:block; margin:10px 0 2px; font-variant-numeric:tabular-nums}
+.kind .of{font-size:12.5px; color:var(--ink-2)}
+.kind details.fold{margin-top:12px}
+.kind dl{margin:0; font-size:13px; display:grid; grid-template-columns:1fr auto; gap:5px 12px}
+.kind dt{color:var(--ink-2); display:flex; align-items:center}
+.kind dd{margin:0; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; text-align:right}
+.pill{font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; padding:3px 7px; border-radius:100px; background:var(--sunk); color:var(--ink-2)}
+.pill.up{background:color-mix(in srgb, var(--warn) 18%, transparent); color:var(--warn)}
+
+.tablewrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:14.5px}
+th,td{text-align:right; padding:11px 13px; border-bottom:1px solid var(--line); white-space:nowrap}
+th:first-child, td:first-child{text-align:left; white-space:normal}
+thead th{
+  font:600 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-2); padding-top:14px; padding-bottom:9px;
+}
+tbody td{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:"Source Sans 3",sans-serif; font-weight:600}
+tr.sub td{border-bottom:0; padding-top:0; padding-bottom:5px; color:var(--ink-2); font-size:13px}
+tr.sub td:first-child{font-weight:400; padding-left:34px}
+tr.sub + tr:not(.sub) td{border-top:1px solid var(--line)}
+.what{display:block; font-family:"Source Sans 3",sans-serif; font-weight:400; font-size:12.5px; color:var(--ink-2); margin-top:2px; white-space:normal}
+.bar{position:relative; width:104px; height:7px; border-radius:100px; background:var(--sunk); overflow:hidden; display:inline-block; vertical-align:middle}
+.bar i{position:absolute; inset:0 auto 0 0; border-radius:100px}
+tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:0; font-size:15.5px; padding-top:13px}
+tfoot td:first-child{font-family:Archivo,sans-serif}
+.dot{width:9px;height:9px;border-radius:2.5px;display:inline-block;margin-right:8px;vertical-align:.5px}
+
+.cliff{
+  margin-top:26px; border:1px solid var(--warn); border-left-width:4px;
+  background:var(--warn-bg); border-radius:10px; padding:19px 21px;
+}
+.cliff h3{font-size:16.5px; color:var(--warn); margin-bottom:7px}
+.cliff p{margin:0 0 9px; font-size:14.5px; max-width:78ch}
+.cliff p:last-child{margin-bottom:0}
+.cliff .mono{color:var(--ink); font-weight:600}
+
+.notes{margin-top:26px; display:grid; grid-template-columns:repeat(auto-fit,minmax(272px,1fr)); gap:1px;
+  background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.note-card{background:var(--surface); padding:19px 21px}
+.note-card h3{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:11px}
+.note-card h3 + details.fold.mini{margin-top:-6px}
+.note-card ul{margin:0; padding-left:17px; font-size:14px; color:var(--ink-2); line-height:1.6}
+.note-card li{margin-bottom:7px}
+.note-card li:last-child{margin-bottom:0}
+.note-card b{color:var(--ink); font-weight:600}
+.excl{font-size:14px; color:var(--ink-2); margin:0; line-height:1.6}
+.foot{margin-top:24px; font-size:12.5px; color:var(--ink-2); text-align:center}
+
+/* ---------- plain-language help: the i buttons and what they open ---------- */
+.info{
+  position:relative; display:inline-grid; place-items:center; flex:none;
+  width:17px; height:17px; margin:0 0 0 6px; padding:0; vertical-align:1px;
+  border-radius:50%; border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  font:italic 700 11px/1 Georgia, "Times New Roman", serif; letter-spacing:0; text-transform:none;
+  cursor:pointer; transition:background .12s, color .12s, border-color .12s;
+}
+.info::after{content:""; position:absolute; inset:-7px; border-radius:50%}  /* a finger-sized target */
+.info:hover, .info[aria-expanded="true"]{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.cell.lead .info{background:transparent; color:var(--bg); border-color:color-mix(in srgb, var(--bg) 50%, transparent)}
+.cell.lead .info:hover, .cell.lead .info[aria-expanded="true"]{background:var(--bg); color:var(--ink); border-color:var(--bg)}
+.masthead h1 .info{width:22px; height:22px; font-size:14px; vertical-align:.5em; margin-left:10px}
+.info-mark{display:inline-grid; place-items:center; width:17px; height:17px; border-radius:50%;
+  border:1px solid var(--line-2); color:var(--ink-2); vertical-align:-3px;
+  font:italic 700 11px/1 Georgia, "Times New Roman", serif}
+.pop{
+  position:fixed; z-index:30; width:max-content; max-width:min(340px, calc(100vw - 32px));
+  background:var(--ink); color:var(--bg); border-radius:10px; padding:13px 15px 14px;
+  box-shadow:0 14px 34px -12px rgba(0,0,0,.55);
+  font:400 14.5px/1.5 "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+}
+.pop h4{margin:0 28px 5px 0; font:700 14.5px/1.3 Archivo, ui-sans-serif, system-ui, sans-serif}
+.pop p{margin:0} .pop p + p{margin-top:7px}
+.pop b{font-weight:600}
+.pop .x{position:absolute; top:7px; right:7px; width:26px; height:26px; border:0; border-radius:50%;
+  background:transparent; color:inherit; opacity:.7; cursor:pointer; font:400 18px/1 system-ui, sans-serif}
+.pop .x:hover{opacity:1; background:color-mix(in srgb, var(--bg) 16%, transparent)}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* ---------- the guided tour ---------- */
+.tour-veil{position:fixed; inset:0; z-index:40}
+.tour-hole{
+  position:fixed; z-index:41; pointer-events:none; border-radius:12px;
+  box-shadow:0 0 0 3px var(--accent), 0 0 0 200vmax var(--veil);
+  transition:top .34s ease, left .34s ease, width .34s ease, height .34s ease, border-radius .34s ease;
+}
+.tour-card{
+  position:fixed; z-index:42; width:min(360px, calc(100vw - 32px)); padding:17px 18px 15px;
+  background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 24px 54px -18px rgba(0,0,0,.6); transition:top .34s ease, left .34s ease;
+}
+.tour-card:focus{outline:none}
+.tracking .tour-hole, .tracking .tour-card{transition:none}
+.tour-meta{display:flex; align-items:center; gap:10px; color:var(--ink-2);
+  font:500 11px/1 "IBM Plex Mono",monospace; letter-spacing:.12em; text-transform:uppercase}
+.tour-prog{flex:1; height:3px; border-radius:3px; background:var(--sunk); overflow:hidden}
+.tour-prog i{display:block; height:100%; background:var(--accent); transition:width .34s ease}
+.tour-card h3{font-size:19px; font-weight:800; letter-spacing:-.015em; margin:12px 0 6px}
+.tour-card p{margin:0; font-size:15px; color:var(--ink-2); line-height:1.5}
+.tour-card p b{color:var(--ink); font-weight:600}
+.tour-acts{display:flex; align-items:center; gap:8px; margin-top:16px}
+.tbtn{font:600 14px/1 "Source Sans 3",sans-serif; border-radius:100px; padding:9px 15px; cursor:pointer;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink)}
+.tbtn:hover{border-color:var(--ink-2)}
+.tbtn.go{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.tbtn.go:hover{filter:brightness(1.08)}
+.tbtn.skip{margin-right:auto; border:0; background:none; padding-left:0; color:var(--ink-2)}
+.tbtn.skip:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Football academy · Telegram coach &amp; parent bot</div>
+      <p class="eyebrow" style="margin:4px 0 0;opacity:.8;text-transform:none;letter-spacing:0">Cost estimate by the bot's developer · sample academy, sample numbers</p>
+      <h1>What the academy bot costs to run<button class="info" data-info="page"></button></h1>
+      <p class="standfirst">Every line we pay for, as one monthly number you can move. Token counts
+        are measured from this bot's own calls; how many kids, coaches and parents use it is yours to set.</p>
+    </div>
+    <div class="tools">
+      <button class="themer lead" id="tourBtn" type="button">Take the tour</button>
+      <button class="themer" id="themer" type="button">Theme</button>
+    </div>
+  </header>
+
+  <div class="scenarios" id="scen">
+    <span class="eyebrow">Scenario<button class="info" data-info="scenario"></button></span>
+    <button class="chip" data-k="40"  type="button">Starter <b>40 kids</b></button>
+    <button class="chip" data-k="120" type="button">Growing <b>120 kids</b></button>
+    <button class="chip" data-k="300" type="button">Large <b>300 kids</b></button>
+    <button class="chip" data-k="800" type="button">Multi-branch <b>800 kids</b></button>
+  </div>
+
+  <section class="headline" id="headline">
+    <div class="cell lead" id="leadCell">
+      <span class="eyebrow">Monthly total<button class="info" data-info="total"></button></span>
+      <span class="big" id="kTotal">$0</span>
+      <span class="note" id="kEgp"></span>
+    </div>
+    <div class="cell">
+      <span class="eyebrow">Per kid / month<button class="info" data-info="perKid"></button></span>
+      <span class="val" id="kPer"></span>
+      <span class="note" id="kPerEgp"></span>
+    </div>
+    <div class="cell">
+      <span class="eyebrow">AI calls / month<button class="info" data-info="volume"></button></span>
+      <span class="val" id="kVol"></span>
+      <span class="note" id="kMix"></span>
+    </div>
+    <div class="cell">
+      <span class="eyebrow">Biggest line<button class="info" data-info="biggest"></button></span>
+      <span class="val" id="kBig"></span>
+      <span class="note" id="kBigNote"></span>
+    </div>
+  </section>
+
+  <div class="alert" id="alert">
+    <span>⚠</span>
+    <span><b>This model cannot hear voice notes.</b><button class="info" data-info="alertVoice"></button>
+      <span id="alertBody"></span></span>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ assumptions rail ============ -->
+    <aside class="panel rail" id="rail">
+      <h2>Assumptions<button class="info" data-info="assumptions"></button></h2>
+      <div class="legendline">
+        <span><span class="tag a">assumed</span>our best guess</span>
+        <span><span class="tag m">measured</span>from the bot's own calls</span>
+      </div>
+
+      <div class="group">
+        <h3>Academy size<button class="info" data-info="grpSize"></button></h3>
+        <div class="ctl" id="ctlKids">
+          <div class="ctl-top"><span class="lab"><label for="kids">Kids enrolled<span class="tag a">assumed</span></label>
+            <button class="info" data-info="kids"></button></span>
+            <output id="oKids">120</output></div>
+          <input type="range" id="kids" min="10" max="1500" step="10" value="120">
+          <p class="hint">Almost every cost follows this number: each kid gets notes, a weekly
+            report and parents who can ask questions. <b>Put your real enrolment here.</b></p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="perCoach">Kids per coach<span class="tag a">assumed</span></label>
+            <button class="info" data-info="perCoach"></button></span>
+            <output id="oPerCoach">12</output></div>
+          <input type="range" id="perCoach" min="5" max="30" step="1" value="12">
+          <p class="hint">Sets how many coaches use the bot. Only coach questions depend on it —
+            a coach's notes are counted per kid.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="parents">Parents on Telegram per kid<span class="tag a">assumed</span></label>
+            <button class="info" data-info="parents"></button></span>
+            <output id="oParents">1.2</output></div>
+          <input type="range" id="parents" min="0" max="2" step="0.1" value="1.2">
+          <p class="hint">Parents who opened their invite link. Two linked parents is the most a
+            kid usually has; <b>1.2 assumes some families link only one</b>.</p>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Coaches<button class="info" data-info="grpCoach"></button></h3>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="notes">Notes per kid a week<span class="tag a">assumed</span></label>
+            <button class="info" data-info="notes"></button></span>
+            <output id="oNotes">2</output></div>
+          <input type="range" id="notes" min="0" max="6" step="0.5" value="2">
+          <p class="hint">Feedback the coach sends about one kid, typed or spoken, including the
+            answers to the Friday check. <b>Two a week</b> is one note per training session.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="voice">Sent as voice notes<span class="tag a">assumed</span></label>
+            <button class="info" data-info="voice"></button></span>
+            <output id="oVoice">40%</output></div>
+          <input type="range" id="voice" min="0" max="100" step="5" value="40">
+          <p class="hint">Coaches are on the pitch, so voice is natural. The bot writes each note
+            down first, then reads it like a typed one, so voice <b>roughly doubles the cost of a note</b>.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="secs">Voice note length<span class="tag a">assumed</span></label>
+            <button class="info" data-info="secs"></button></span>
+            <output id="oSecs">15s</output></div>
+          <input type="range" id="secs" min="3" max="90" step="1" value="15">
+          <p class="hint">Audio bills at <b>32 tokens per second</b>. Telegram sets no limit, so a
+            rambling minute-long note costs about three times a 15-second one.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="cq">Questions per coach a week<span class="tag a">assumed</span></label>
+            <button class="info" data-info="cq"></button></span>
+            <output id="oCq">5</output></div>
+          <input type="range" id="cq" min="0" max="30" step="1" value="5">
+          <p class="hint">“How's Omar doing?”, “who still needs a note this week?”. Buttons —
+            attendance, the Friday check, the menu — <b>cost nothing</b> and aren't counted here.</p>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Parents<button class="info" data-info="grpParent"></button></h3>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="pq">Questions per parent a week<span class="tag a">assumed</span></label>
+            <button class="info" data-info="pq"></button></span>
+            <output id="oPq">1</output></div>
+          <input type="range" id="pq" min="0" max="7" step="0.5" value="1">
+          <p class="hint">Most parents read the Sunday report and ask little. <b>One a week</b> is a
+            generous guess for the first months.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="relay">Passed on to the coach<span class="tag a">assumed</span></label>
+            <button class="info" data-info="relay"></button></span>
+            <output id="oRelay">15%</output></div>
+          <input type="range" id="relay" min="0" max="60" step="5" value="15">
+          <p class="hint">Questions only the coach can answer. Relaying is a tiny call on the
+            cheaper model, so this barely moves the bill.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="trans">Reports also sent in Arabic or Franco<span class="tag a">assumed</span></label>
+            <button class="info" data-info="trans"></button></span>
+            <output id="oTrans">80%</output></div>
+          <input type="range" id="trans" min="0" max="100" step="5" value="80">
+          <p class="hint">The report is written once, then translated for each language its
+            parents chose. The translation is saved and reused.</p>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>AI<button class="info" data-info="grpAI"></button></h3>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="model">Main model</label>
+            <button class="info" data-info="model"></button></span></div>
+          <select id="model">
+            <option value="0.825|4.125|0.825|1" selected>Gemini 3.8 Flash — $0.825/$4.125 · hears audio</option>
+            <option value="0.75|3.75|0.75|1">Gemini 3.7 Flash — $0.75/$3.75 · hears audio</option>
+            <option value="1.50|9.00|3.00|1">Gemini 3.5 Flash — $1.50/$9.00 · hears audio</option>
+            <option value="0.30|2.50|0.30|1">Gemini 3.5 Flash Lite — $0.30/$2.50 · hears audio</option>
+            <option value="0.25|1.50|0.50|1">Gemini 3.1 Flash Lite — $0.25/$1.50 · hears audio</option>
+            <option value="0.20|1.20|0|0">GPT-5.6 Luna — $0.20/$1.20 · text only</option>
+            <option value="1.00|5.00|0|0">Claude Haiku 4.5 — $1.00/$5.00 · text only</option>
+          </select>
+          <p class="hint">Per 1M tokens in / out, live OpenRouter list prices. <b>Gemini 3.8 Flash
+            runs the bot today</b>: it follows Egyptian Arabic and Franco well and hears voice notes
+            directly. Relays always use Gemini 3.1 Flash Lite.</p>
+        </div>
+        <details class="fold" id="foldAI">
+          <summary>Technical AI settings <span class="count">3 · optional</span></summary>
+          <div class="fold-body">
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="noteIn">Context per note<span class="tag m">measured</span></label>
+                <button class="info" data-info="noteIn"></button></span>
+                <output id="oNoteIn">1,960</output></div>
+              <input type="range" id="noteIn" min="1000" max="5000" step="10" value="1960">
+              <p class="hint">Instructions plus the coach's roster, so the bot can tell which Ziad
+                is meant. <b>Grows with the coach's group size</b>, not the academy's.</p>
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="cqIn">Context per coach question<span class="tag m">measured</span></label>
+                <button class="info" data-info="cqIn"></button></span>
+                <output id="oCqIn">7,410</output></div>
+              <input type="range" id="cqIn" min="3000" max="15000" step="10" value="7410">
+              <p class="hint">Two calls: one sorts the message (note or question?), one answers with
+                the kids' recent notes attached. <b>The dearest single action</b> the bot takes.</p>
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="pqIn">Context per parent answer<span class="tag m">measured</span></label>
+                <button class="info" data-info="pqIn"></button></span>
+                <output id="oPqIn">3,250</output></div>
+              <input type="range" id="pqIn" min="1500" max="8000" step="10" value="3250">
+              <p class="hint">Instructions, schedule, and only that parent's own kids' reports and
+                notes — never anyone else's.</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="group">
+        <h3>Telegram<button class="info" data-info="grpTG"></button></h3>
+        <div class="ctl">
+          <p class="hint" style="margin-top:0"><b>$0, at any size.</b> The Telegram Bot API has no
+            monthly fee, no per-message fee and no business verification. Voice notes and photos
+            download free. There is nothing to set here.</p>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Hosting<button class="info" data-info="grpHost"></button></h3>
+        <details class="fold" id="foldHost" style="margin-top:0;border-top:0">
+          <summary>Server, web address and backups <span class="count">3 · optional</span></summary>
+          <div class="fold-body">
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="host">Server</label>
+                <button class="info" data-info="host"></button></span></div>
+              <select id="host">
+                <option value="7|Lightsail 1 GB" selected>AWS Lightsail 1 GB — $7/mo, all-in</option>
+                <option value="12|Lightsail 2 GB">AWS Lightsail 2 GB — $12/mo, all-in</option>
+                <option value="6|DigitalOcean 1 GB">DigitalOcean Basic 1 GB — $6/mo</option>
+                <option value="0|Own computer">An office computer that stays on — $0/mo</option>
+              </select>
+              <p class="hint"><b>Lightsail 1 GB is enough</b>: bot, dashboard and the SQLite database
+                run as one small program on one box. An office computer works too, but while it is off,
+                attendance prompts, the Friday check and Sunday reports wait.</p>
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="snap">Backups / month</label>
+                <button class="info" data-info="snap"></button></span><output id="oSnap">$1</output></div>
+              <input type="range" id="snap" min="0" max="10" step="1" value="1">
+              <p class="hint">A daily snapshot. The database and the kids' photos are the whole
+                academy record — <b>do not set this to zero</b>.</p>
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><span class="lab"><label for="dom">Domain / year</label>
+                <button class="info" data-info="dom"></button></span><output id="oDom">$14</output></div>
+              <input type="range" id="dom" min="0" max="60" step="1" value="14">
+              <p class="hint">So staff can open the dashboard from anywhere, over HTTPS. The
+                certificate is free via Let's Encrypt.</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="group">
+        <h3>Exchange rate<button class="info" data-info="grpFX"></button></h3>
+        <div class="ctl">
+          <div class="ctl-top"><span class="lab"><label for="egp">USD → EGP</label>
+            <button class="info" data-info="egp"></button></span><output id="oEgp">48.0</output></div>
+          <input type="range" id="egp" min="30" max="80" step="0.5" value="48">
+          <p class="hint">Display only. <b>Set today's rate</b> — this one moves.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ results ============ -->
+    <main style="display:grid; gap:26px">
+
+      <section class="panel" id="oneMsg">
+        <h2>What one action costs<button class="info" data-info="oneMsg"></button></h2>
+        <div class="split">
+          <div class="kind">
+            <h4>Typed note<button class="info" data-info="textNote"></button> <span class="pill">baseline</span></h4>
+            <span class="amt" id="aText"></span>
+            <span class="of">a coach's typed feedback, filed to the kid</span>
+            <details class="fold mini">
+              <summary>How it's worked out</summary>
+              <div class="fold-body"><dl>
+                <dt>Context in<button class="info" data-info="ctxIn"></button></dt><dd id="dTextIn"></dd>
+                <dt>Summary out<button class="info" data-info="replyOut"></button></dt><dd id="dTextOut"></dd>
+              </dl></div>
+            </details>
+          </div>
+          <div class="kind">
+            <h4>Voice note<button class="info" data-info="voiceKind"></button> <span class="pill up" id="pVoice"></span></h4>
+            <span class="amt" id="aVoice"></span>
+            <span class="of" id="ofVoice"></span>
+            <details class="fold mini">
+              <summary>How it's worked out</summary>
+              <div class="fold-body"><dl>
+                <dt>Audio in<button class="info" data-info="audIn"></button></dt><dd id="dVoiceAud"></dd>
+                <dt>Writing it down<button class="info" data-info="writeDown"></button></dt><dd id="dVoiceTx"></dd>
+                <dt>Context in<button class="info" data-info="ctxIn"></button></dt><dd id="dVoiceIn"></dd>
+                <dt>Summary out<button class="info" data-info="replyOut"></button></dt><dd id="dVoiceOut"></dd>
+              </dl></div>
+            </details>
+          </div>
+          <div class="kind">
+            <h4>Question answered<button class="info" data-info="qKind"></button></h4>
+            <span class="amt" id="aPq"></span>
+            <span class="of">a parent's question · <span id="aCq"></span> for a coach's</span>
+            <details class="fold mini">
+              <summary>How it's worked out</summary>
+              <div class="fold-body"><dl>
+                <dt>Parent: in · out</dt><dd id="dPq"></dd>
+                <dt>Coach: in · out<button class="info" data-info="cqIn"></button></dt><dd id="dCq"></dd>
+                <dt>Relay to coach<button class="info" data-info="relay"></button></dt><dd id="dRelay"></dd>
+              </dl></div>
+            </details>
+          </div>
+          <div class="kind">
+            <h4>Sunday report<button class="info" data-info="repKind"></button></h4>
+            <span class="amt" id="aRep"></span>
+            <span class="of">one kid's week, written and translated</span>
+            <details class="fold mini">
+              <summary>How it's worked out</summary>
+              <div class="fold-body"><dl>
+                <dt>Writing: in · out</dt><dd id="dRep"></dd>
+                <dt>Translating: in · out<button class="info" data-info="trans"></button></dt><dd id="dTr"></dd>
+                <dt>Sending to parents</dt><dd>$0</dd>
+              </dl></div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="chartPanel">
+        <figure>
+          <div class="figcap">
+            <h3>Monthly cost as the academy grows<button class="info" data-info="chart"></button></h3>
+            <span class="eyebrow">marker = your setting</span>
+          </div>
+          <p class="figsub">Hosting sets a flat floor; the three AI bands climb in a straight line
+            with the number of kids. Telegram adds nothing at any size.</p>
+          <div class="chartbox">
+            <svg class="chart" id="svg" viewBox="0 0 760 330" role="img"
+                 aria-label="Stacked area chart of monthly cost in US dollars against kids enrolled"></svg>
+            <div class="tip" id="tip"></div>
+          </div>
+          <div class="legend" id="legend"></div>
+        </figure>
+      </section>
+
+      <section class="panel" id="moneyTable">
+        <h2>Where the money goes<button class="info" data-info="table"></button></h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr>
+              <th>Line<button class="info" data-info="colLine"></button></th>
+              <th>Basis<button class="info" data-info="colBasis"></button></th>
+              <th>Monthly<button class="info" data-info="colMonthly"></button></th>
+              <th>Share<button class="info" data-info="colShare"></button></th>
+              <th>Per kid<button class="info" data-info="colPer"></button></th>
+            </tr></thead>
+            <tbody id="tbody"></tbody>
+            <tfoot><tr>
+              <td>Total</td><td></td><td class="mono" id="fTotal"></td>
+              <td></td><td class="mono" id="fPer"></td>
+            </tr></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="cliff" id="cliff">
+        <h3>Why Telegram, not WhatsApp<button class="info" data-info="cliff"></button></h3>
+        <p>On Telegram the bot can message a coach or parent at any time, for free. WhatsApp
+          charges a provider fee per number (360dialog's <span class="mono">€49</span> a month) and, from
+          <span class="mono">1 Oct 2026</span>, Meta's Egyptian rate of <span class="mono">$0.0036</span> per
+          message past <span class="mono">1,000</span> free a month. The Sunday reports and attendance
+          prompts are sent unprompted, so on WhatsApp they would also need pre-approved templates.</p>
+        <p id="cliffLine"></p>
+      </section>
+
+      <div class="notes">
+        <div class="note-card">
+          <h3>Measured here<button class="info" data-info="measured"></button></h3>
+          <details class="fold mini">
+            <summary>Show the measurements</summary>
+            <div class="fold-body"><ul>
+              <li>Typed note: <b>1,960</b> in / <b>173</b> out, from 8 notes in English, Arabic and
+                Franco on 20 Oct (1,840–2,050).</li>
+              <li>Voice note: writing it down took <b>~270</b> tokens of instructions plus the audio
+                (8.8s and 18.2s notes), <b>~4</b> tokens out per second; reading it then took
+                <b>2,000</b> in / <b>517</b> out — spoken notes run longer and cover more.</li>
+              <li>Coach question: <b>2,110</b> + <b>5,300</b> in over two calls, <b>133</b> out (4 questions).</li>
+              <li>Parent answer: <b>3,250</b> in / <b>131</b> out (8 questions); relay to coach
+                <b>162</b> / <b>159</b> on Flash Lite.</li>
+              <li>Report: <b>515</b> / <b>278</b> (10 kids); translation <b>340</b> / <b>484</b> (12, Arabic and Franco).</li>
+            </ul></div>
+          </details>
+        </div>
+        <div class="note-card">
+          <h3>What costs nothing<button class="info" data-info="free"></button></h3>
+          <details class="fold mini">
+            <summary>Show the free parts</summary>
+            <div class="fold-body"><ul>
+              <li><b>Every Telegram message</b>, in or out, voice and photos included.</li>
+              <li><b>Attendance</b> — the checklist 10 minutes before training is all buttons.</li>
+              <li><b>The Friday check</b> asks with buttons; only the coach's spoken or typed answers
+                count, already inside “notes per kid”.</li>
+              <li><b>Sending reports</b>, kid photos, menus and language changes.</li>
+              <li>A translated report is <b>saved</b>, so a second parent in the same language costs nothing.</li>
+            </ul></div>
+          </details>
+        </div>
+        <div class="note-card">
+          <h3>Deliberately excluded<button class="info" data-info="excluded"></button></h3>
+          <p class="excl">No salaries, contractors or engineering time — infrastructure and usage
+            only. Also outside: the computer's electricity if self-hosted, paid monitoring, an SMS
+            or WhatsApp fallback for parents without Telegram, and any one-off data entry of kids
+            and photos into the dashboard.</p>
+        </div>
+      </div>
+
+      <p class="foot">Prices checked 20 Oct 2026<button class="info" data-info="foot"></button> · token counts measured 20 Oct 2026 · model prices and audio rates live from the OpenRouter catalogue · hosting from AWS and DigitalOcean list prices</p>
+    </main>
+  </div>
+</div>
+
+<div class="pop" id="infoPop" aria-hidden="true" hidden></div>
+<div class="sr" id="infoLive" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  "use strict";
+  var WEEKS = 4.35, RETRY = 0.05, AUD_PER_SEC = 32;
+  // measured 20 Oct 2026, see "Measured here"
+  var NOTE_OUT = 173;                                  // typed note → summary
+  var VOICE_OUT_BASE = 173, VOICE_OUT_PER_SEC = 25;    // spoken notes come back longer (517 at 13.5s)
+  var TX_IN = 270, TX_OUT_PER_SEC = 4.4;               // writing a voice note down
+  var CQ_OUT = 133;                                    // coach question, two calls
+  var PQ_OUT = 131;                                    // parent answer
+  var RELAY_IN = 162, RELAY_OUT = 159, FAST_IN = 0.25, FAST_OUT = 1.50;   // relay on Flash Lite
+  var REP_IN = 515, REP_OUT = 278, TR_IN = 340, TR_OUT = 484;
+  // for the WhatsApp comparison only
+  var WA_FREE = 1000, WA_RATE = 0.0036, WA_VAT = 0.14, WA_BSP = 49 * 1.08, SESSIONS = 2;
+
+  var LINES = [
+    { key:"notes", name:"Coach notes",        v:"--s1", basis:"AI · typed and voice feedback" },
+    { key:"qa",    name:"Questions answered", v:"--s2", basis:"AI · coaches and parents" },
+    { key:"rep",   name:"Sunday reports",     v:"--s3", basis:"AI · written and translated" },
+    { key:"tg",    name:"Telegram",           v:"--ink-2", basis:"Bot API", chart:false },
+    { key:"infra", name:"Hosting + domain",   v:"--s4", basis:"flat" }
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var css = function(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+  var usd = function(n){
+    if (n === 0) return "$0";
+    if (n < 10) return "$" + n.toFixed(2);
+    return "$" + Math.round(n).toLocaleString("en-US");
+  };
+  var per = function(n){ return "$" + n.toFixed(4); };
+  var num = function(n){ return Math.round(n).toLocaleString("en-US"); };
+  var tok = function(n){ return num(n) + " tok"; };
+
+  function read(){
+    var mp = $("model").value.split("|");
+    var hp = $("host").value.split("|");
+    return {
+      kids:+$("kids").value, perCoach:+$("perCoach").value, parents:+$("parents").value,
+      notes:+$("notes").value, voicePct:+$("voice").value/100, secs:+$("secs").value, cq:+$("cq").value,
+      pq:+$("pq").value, relayPct:+$("relay").value/100, transPct:+$("trans").value/100,
+      pIn:+mp[0], pOut:+mp[1], pAud:+mp[2], hearsAudio:mp[3] === "1",
+      noteIn:+$("noteIn").value, cqIn:+$("cqIn").value, pqIn:+$("pqIn").value,
+      host:+hp[0], hostName:hp[1], snap:+$("snap").value, domYr:+$("dom").value, egp:+$("egp").value
+    };
+  }
+
+  /* One model, used by the tiles, the table and every point on the chart. */
+  function calc(s, kidsN){
+    var kids = kidsN === undefined ? s.kids : kidsN;
+    var coaches = kids > 0 ? Math.max(1, Math.ceil(kids / s.perCoach)) : 0;
+    var k = function(inT, outT, pIn, pOut){ return (inT*pIn + outT*pOut)/1e6; };
+
+    var notes  = kids * s.notes * WEEKS;
+    var voiceN = notes * s.voicePct, textN = notes - voiceN;
+    var audTok = AUD_PER_SEC * s.secs, txOut = TX_OUT_PER_SEC * s.secs;
+    var voiceOut = VOICE_OUT_BASE + VOICE_OUT_PER_SEC * s.secs;
+    var unitTx    = (TX_IN*s.pIn + audTok*s.pAud + txOut*s.pOut)/1e6;
+    var unitText  = k(s.noteIn, NOTE_OUT, s.pIn, s.pOut) * (1+RETRY);
+    var unitVoice = unitTx + k(s.noteIn, voiceOut, s.pIn, s.pOut) * (1+RETRY);
+
+    var cqN = coaches * s.cq * WEEKS;
+    var pqN = kids * s.parents * s.pq * WEEKS;
+    var relN = pqN * s.relayPct;
+    var unitCq = k(s.cqIn, CQ_OUT, s.pIn, s.pOut) * (1+RETRY);
+    var unitPq = k(s.pqIn, PQ_OUT, s.pIn, s.pOut) * (1+RETRY);
+    var unitRel = k(RELAY_IN, RELAY_OUT, FAST_IN, FAST_OUT);
+
+    var repN = kids * WEEKS, trN = repN * s.transPct;
+    var unitRep = k(REP_IN, REP_OUT, s.pIn, s.pOut) * (1+RETRY);
+    var unitTr  = k(TR_IN, TR_OUT, s.pIn, s.pOut) * (1+RETRY);
+
+    var nText = textN*unitText, nVoice = voiceN*unitVoice;
+    var qCoach = cqN*unitCq, qParent = pqN*unitPq, qRelay = relN*unitRel;
+    var rWrite = repN*unitRep, rTrans = trN*unitTr;
+    var infra = s.host + s.snap + s.domYr/12;
+
+    // the same month on WhatsApp: every message the bot sends would count
+    var outbound = notes + cqN + pqN + relN*2 + repN*s.parents + coaches*SESSIONS*WEEKS;
+    var wa = WA_BSP + Math.max(0, outbound - WA_FREE) * WA_RATE * (1 + WA_VAT);
+
+    var calls = textN + voiceN*2 + cqN*2 + pqN + relN + repN + trN;
+    return { kids:kids, coaches:coaches, notes:notes, textN:textN, voiceN:voiceN, cqN:cqN, pqN:pqN,
+             relN:relN, repN:repN, trN:trN, calls:calls,
+             audTok:audTok, txOut:txOut, voiceOut:voiceOut,
+             unitText:unitText, unitVoice:unitVoice, unitTx:unitTx, unitCq:unitCq, unitPq:unitPq,
+             unitRel:unitRel, unitRep:unitRep, unitTr:unitTr,
+             nText:nText, nVoice:nVoice, qCoach:qCoach, qParent:qParent, qRelay:qRelay,
+             rWrite:rWrite, rTrans:rTrans,
+             notesCost:nText+nVoice, qa:qCoach+qParent+qRelay, rep:rWrite+rTrans, tg:0, infra:infra,
+             outbound:outbound, wa:wa,
+             total:nText+nVoice+qCoach+qParent+qRelay+rWrite+rTrans+infra };
+  }
+  // the table and chart look lines up by key
+  function lineVal(c, key){ return key === "notes" ? c.notesCost : c[key]; }
+
+  /* ---------------- chart ---------------- */
+  var W=760, H=330, ML=62, MR=16, MT=14, MB=42;
+  var PW=W-ML-MR, PH=H-MT-MB;
+  function niceMax(v){
+    if (v <= 0) return 10;
+    var p = Math.pow(10, Math.floor(Math.log10(v)));
+    return Math.ceil(v/p*2)/2*p;
+  }
+  var pts = [];
+  var CHART = LINES.filter(function(L){ return L.chart !== false; });
+
+  function drawChart(s){
+    var xMax = Math.max(100, Math.min(1500, Math.round(s.kids*2.5/50)*50));
+    var N = 64, i, j;
+    pts = [];
+    for (i=0;i<=N;i++){
+      var m = xMax*i/N, r = calc(s, m);
+      r.m = m; pts.push(r);
+    }
+    var yMax = niceMax(calc(s, xMax).total);
+    var X = function(m){ return ML + (m/xMax)*PW; };
+    var Y = function(v){ return MT + PH - (v/yMax)*PH; };
+    var ink2 = css("--ink-2"), line = css("--line"), ink = css("--ink"), surf = css("--surface");
+    var o = [];
+
+    for (j=0;j<=4;j++){
+      var v = yMax*j/4, y = Y(v);
+      o.push('<line x1="'+ML+'" y1="'+y.toFixed(1)+'" x2="'+(ML+PW)+'" y2="'+y.toFixed(1)+
+             '" stroke="'+line+'" stroke-width="1"/>');
+      o.push('<text x="'+(ML-9)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-size="11" fill="'+ink2+'">'+
+             usd(v)+'</text>');
+    }
+
+    var order = ["infra","rep","qa","notes"];
+    var base = pts.map(function(){ return 0; });
+    for (j=0;j<order.length;j++){
+      var key = order[j];
+      var col = css(LINES.filter(function(L){ return L.key===key; })[0].v);
+      var top = pts.map(function(p, idx){ return base[idx] + lineVal(p, key); });
+      var d = "M " + X(pts[0].m).toFixed(1) + " " + Y(base[0]).toFixed(1);
+      for (i=0;i<pts.length;i++) d += " L " + X(pts[i].m).toFixed(1) + " " + Y(top[i]).toFixed(1);
+      for (i=pts.length-1;i>=0;i--) d += " L " + X(pts[i].m).toFixed(1) + " " + Y(base[i]).toFixed(1);
+      o.push('<path d="'+d+' Z" fill="'+col+'" fill-opacity=".88" stroke="'+surf+
+             '" stroke-width="2" stroke-linejoin="round"/>');
+      base = top;
+    }
+
+    o.push('<line x1="'+ML+'" y1="'+(MT+PH)+'" x2="'+(ML+PW)+'" y2="'+(MT+PH)+
+           '" stroke="'+ink2+'" stroke-width="1"/>');
+    for (j=0;j<=4;j++){
+      var mv = xMax*j/4;
+      o.push('<text x="'+X(mv).toFixed(1)+'" y="'+(MT+PH+18)+'" text-anchor="middle" font-size="11" fill="'+ink2+'">'+
+             num(mv)+'</text>');
+    }
+    o.push('<text x="'+(ML+PW/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="10.5" fill="'+ink2+
+           '" letter-spacing="1.2">KIDS ENROLLED</text>');
+
+    var cur = calc(s), cx = X(s.kids);
+    o.push('<line x1="'+cx.toFixed(1)+'" y1="'+MT+'" x2="'+cx.toFixed(1)+'" y2="'+(MT+PH)+
+           '" stroke="'+ink+'" stroke-width="1.5" stroke-dasharray="3 3"/>');
+    o.push('<circle cx="'+cx.toFixed(1)+'" cy="'+Y(cur.total).toFixed(1)+'" r="5" fill="'+ink+
+           '" stroke="'+surf+'" stroke-width="2"/>');
+    var right = cx > ML+PW-90;
+    o.push('<text x="'+(right?cx-9:cx+9).toFixed(1)+'" y="'+(Y(cur.total)-11).toFixed(1)+
+           '" text-anchor="'+(right?"end":"start")+'" font-size="12.5" font-weight="600" fill="'+ink+'">'+
+           usd(cur.total)+'/mo</text>');
+
+    $("svg").innerHTML = o.join("");
+    $("svg").__x = { xMax:xMax, X:X, Y:Y };
+
+    $("legend").innerHTML = LINES.map(function(L){
+      return '<span class="lg"><span class="sw" style="background:'+css(L.v)+
+             (L.chart === false ? ';opacity:.35' : '')+'"></span>'+
+             L.name+' <b>'+usd(lineVal(cur, L.key))+'</b></span>';
+    }).join("");
+  }
+
+  function hover(ev){
+    var svg = $("svg"), tip = $("tip"), meta = svg.__x;
+    if (!meta || !pts.length) return;
+    var r = svg.getBoundingClientRect();
+    var px = (ev.clientX - r.left) / r.width * W;
+    if (px < ML || px > ML+PW){ tip.classList.remove("on"); return; }
+    var m = (px-ML)/PW * meta.xMax, best = pts[0], bd = Infinity;
+    for (var i=0;i<pts.length;i++){
+      var d = Math.abs(pts[i].m - m);
+      if (d < bd){ bd = d; best = pts[i]; }
+    }
+    tip.innerHTML = '<div class="th">'+num(best.m)+' kids · '+best.coaches+' coaches</div>'+
+      CHART.map(function(L){
+        return '<div class="tr"><span><i style="background:'+css(L.v)+'"></i>'+L.name+
+               '</span><span>'+usd(lineVal(best, L.key))+'</span></div>';
+      }).join("") +
+      '<div class="tr tt"><span>Total</span><span>'+usd(best.total)+'</span></div>';
+    tip.classList.add("on");
+    tip.style.left = (meta.X(best.m)/W*r.width) + "px";
+    tip.style.top  = (meta.Y(best.total)/H*r.height - 12) + "px";
+  }
+
+  /* ---------------- render ---------------- */
+  function render(){
+    var s = read(), c;
+
+    $("oKids").textContent     = num(s.kids);
+    $("oPerCoach").textContent = s.perCoach;
+    $("oParents").textContent  = s.parents.toFixed(1);
+    $("oNotes").textContent    = s.notes;
+    $("oVoice").textContent    = Math.round(s.voicePct*100)+"%";
+    $("oSecs").textContent     = s.secs+"s";
+    $("oCq").textContent       = s.cq;
+    $("oPq").textContent       = s.pq;
+    $("oRelay").textContent    = Math.round(s.relayPct*100)+"%";
+    $("oTrans").textContent    = Math.round(s.transPct*100)+"%";
+    $("oNoteIn").textContent   = num(s.noteIn);
+    $("oCqIn").textContent     = num(s.cqIn);
+    $("oPqIn").textContent     = num(s.pqIn);
+    $("oSnap").textContent     = "$"+s.snap;
+    $("oDom").textContent      = "$"+s.domYr;
+    $("oEgp").textContent      = s.egp.toFixed(1);
+
+    // a text-only model cannot take voice notes: coaches would have to type everything
+    var broken = !s.hearsAudio && s.voicePct > 0;
+    $("alert").classList.toggle("on", broken);
+    var eff = Object.assign({}, s);
+    if (broken) eff.voicePct = 0;
+    c = calc(eff);
+    if (broken){
+      $("alertBody").textContent =
+        " At " + Math.round(s.voicePct*100) + "% voice, about " + num(calc(s).voiceN) +
+        " coach notes a month would be refused and have to be typed instead, or you keep a second " +
+        "model just for audio. The figures below assume every note is typed.";
+    }
+
+    $("kTotal").textContent  = usd(c.total);
+    $("kEgp").textContent    = "≈ EGP " + num(c.total*s.egp) + " at " + s.egp.toFixed(1) + "/USD";
+    var perKid = c.kids ? c.total / c.kids : 0;
+    $("kPer").textContent    = usd(perKid);
+    $("kPerEgp").textContent = "≈ EGP " + (perKid*s.egp).toFixed(1) + " · " + c.coaches + " coaches";
+    $("kVol").textContent    = num(c.calls);
+    $("kMix").textContent    = num(c.notes) + " notes · " + num(c.cqN + c.pqN) + " questions · " + num(c.repN) + " reports";
+
+    var top = LINES.map(function(L){ return { n:L.name, v:lineVal(c, L.key) }; })
+                   .sort(function(a,b){ return b.v - a.v; })[0];
+    $("kBig").textContent     = top.n;
+    $("kBigNote").textContent = Math.round(top.v/c.total*100) + "% of the bill";
+
+    // one-action tiles
+    $("aText").textContent    = per(c.unitText);
+    $("dTextIn").textContent  = tok(s.noteIn);
+    $("dTextOut").textContent = tok(NOTE_OUT);
+    $("aVoice").textContent   = s.hearsAudio ? per(c.unitVoice) : "n/a";
+    $("ofVoice").textContent  = "a " + s.secs + "s spoken note, written down then filed";
+    $("dVoiceAud").textContent = s.hearsAudio ? tok(c.audTok) : "not supported";
+    $("dVoiceTx").textContent  = s.hearsAudio ? TX_IN + " in · " + num(c.txOut) + " out" : "not supported";
+    $("dVoiceIn").textContent  = tok(s.noteIn);
+    $("dVoiceOut").textContent = tok(c.voiceOut);
+    var delta = c.unitText > 0 ? (c.unitVoice/c.unitText - 1) * 100 : 0;
+    $("pVoice").textContent = s.hearsAudio ? "+" + Math.round(delta) + "%" : "unsupported";
+    $("pVoice").classList.toggle("up", s.hearsAudio);
+    $("aPq").textContent   = per(c.unitPq);
+    $("aCq").textContent   = per(c.unitCq);
+    $("dPq").textContent   = num(s.pqIn) + " · " + PQ_OUT;
+    $("dCq").textContent   = num(s.cqIn) + " · " + CQ_OUT;
+    $("dRelay").textContent = per(c.unitRel);
+    $("aRep").textContent  = per(c.unitRep + c.unitTr);
+    $("dRep").textContent  = REP_IN + " · " + REP_OUT;
+    $("dTr").textContent   = TR_IN + " · " + TR_OUT;
+
+    // breakdown, with each AI line split into its parts
+    var rows = "";
+    var sub = function(label, v, n){
+      return '<tr class="sub"><td>'+label+'</td><td></td><td>'+usd(v)+'</td><td>'+n+'</td><td></td></tr>';
+    };
+    LINES.forEach(function(L){
+      var v = lineVal(c, L.key), share = c.total ? v/c.total*100 : 0;
+      var basis = L.key === "notes" ? num(c.textN + c.voiceN*2) + " model calls"
+        : L.key === "qa"    ? num(c.cqN*2 + c.pqN + c.relN) + " model calls"
+        : L.key === "rep"   ? num(c.repN + c.trN) + " model calls"
+        : L.key === "tg"    ? "no fees, any volume"
+        : s.hostName + " + backups + domain";
+      rows += '<tr><td><span class="dot" style="background:'+css(L.v)+'"></span>'+L.name+
+        '<button class="info" data-info="row-'+L.key+'"></button>'+
+        '<span class="what">'+L.basis+'</span></td>'+
+        '<td class="mono" style="font-size:12.5px;color:var(--ink-2)">'+basis+'</td>'+
+        '<td>'+usd(v)+'</td>'+
+        '<td><span class="bar"><i style="width:'+share.toFixed(1)+'%;background:'+css(L.v)+
+        '"></i></span> '+share.toFixed(0)+'%</td>'+
+        '<td>'+per(c.kids ? v/c.kids : 0)+'</td></tr>';
+      if (L.key === "notes"){
+        rows += sub("typed", c.nText, num(c.textN)+" notes");
+        rows += sub("voice", c.nVoice, num(c.voiceN)+" notes");
+      } else if (L.key === "qa"){
+        rows += sub("coach questions", c.qCoach, num(c.cqN)+" asked");
+        rows += sub("parent questions", c.qParent, num(c.pqN)+" asked");
+        rows += sub("passed to the coach", c.qRelay, num(c.relN)+" relayed");
+      } else if (L.key === "rep"){
+        rows += sub("writing", c.rWrite, num(c.repN)+" reports");
+        rows += sub("translating", c.rTrans, num(c.trN)+" translations");
+      }
+    });
+    $("tbody").innerHTML = rows;
+    labelInfo($("tbody"));
+    $("fTotal").textContent = usd(c.total);
+    $("fPer").textContent   = per(c.kids ? c.total/c.kids : 0);
+
+    $("cliffLine").innerHTML = 'At your settings the bot sends about <span class="mono">' + num(c.outbound) +
+      '</span> messages a month. On WhatsApp that would add roughly <span class="mono">' + usd(c.wa) +
+      '</span> a month — <span class="mono">' + (c.total ? (c.wa/c.total).toFixed(1) : "0") +
+      '×</span> the whole Telegram bill. On Telegram it adds <span class="mono">$0</span>.';
+
+    Array.prototype.forEach.call(document.querySelectorAll("#scen .chip"), function(b){
+      b.setAttribute("aria-pressed", String(+b.dataset.k === s.kids));
+    });
+
+    drawChart(eff);
+  }
+
+  /* ================= plain-language help ================= */
+  // Written for an academy owner with no technical or finance background:
+  // what the thing is, in everyday words, and why it matters to the bill.
+  var INFO = {
+    page:{t:"What this page is", b:"<p>A calculator for what the academy's Telegram bot — the one coaches send feedback to and parents get weekly reports from — and its dashboard cost to run each month.</p><p>Change any setting and every number updates. It covers running costs only: no salaries and no development time.</p>"},
+    scenario:{t:"Scenarios", b:"<p>Ready-made academy sizes, counted in enrolled kids — from a single small academy (40) to several branches (800).</p><p>Tap one to try it. Fine-tune it with the “Kids enrolled” slider.</p>"},
+    total:{t:"Monthly total", b:"<p>Everything the bot costs in one month, added up: the AI that reads notes and writes replies and reports, plus the rented server.</p><p>It's in US dollars because the suppliers charge in dollars. The Egyptian-pound figure is the same amount at the rate you set.</p>"},
+    perKid:{t:"Per kid per month", b:"<p>The monthly total divided by the number of enrolled kids — a handy figure to compare with the monthly fee an academy charges.</p><p>It includes the fixed server cost, so it falls as the academy grows.</p>"},
+    volume:{t:"AI calls per month", b:"<p>How many times a month the bot asks the AI to do something: file a note, write a voice note down, answer a question, write or translate a report.</p><p>Buttons — attendance, menus, the Friday check — never call the AI.</p>"},
+    biggest:{t:"Biggest line", b:"<p>The single cost that takes the largest slice of the bill. For a small academy it's usually the server; as kids are added, coach notes take over.</p>"},
+    alertVoice:{t:"Why this warning appears", b:"<p>The AI you've picked can read text but can't listen to voice notes. Coaches would have to type every note.</p><p>Pick a model marked “hears audio” and the warning goes away.</p>"},
+    assumptions:{t:"Assumptions", b:"<p>The settings every number on this page is built from. Move a slider or pick an option and the whole page recalculates.</p><p><b>Assumed</b> means our best guess — replace it with the real figure after a month of use. <b>Measured</b> means it was taken from the bot's own calls.</p>"},
+    grpSize:{t:"Academy size", b:"<p>How many kids, coaches and parents use the bot. This is what drives the bill: more kids mean more notes, more reports and more parent questions.</p>"},
+    kids:{t:"Kids enrolled", b:"<p>Kids with a profile in the dashboard. Each one gets coach notes and a Sunday report, and their parents can ask the bot about them.</p>"},
+    perCoach:{t:"Kids per coach", b:"<p>How many kids one coach looks after, on average. It sets how many coaches there are, which matters only for the questions coaches ask the bot.</p>"},
+    parents:{t:"Parents on Telegram per kid", b:"<p>How many of each kid's parents have linked to the bot with their invite link. Each linked parent gets the Sunday report and can ask questions.</p>"},
+    grpCoach:{t:"Coaches", b:"<p>How much coaches use the bot: sending feedback about kids, by typing or by voice, and asking it questions about their own kids.</p>"},
+    notes:{t:"Notes per kid a week", b:"<p>How many pieces of feedback a coach sends about each kid in a week. This includes the answers the coach gives when the bot asks on Friday about kids with no notes yet.</p><p>A note that mentions three kids counts as three here — a little on the safe side.</p>"},
+    voice:{t:"Sent as voice notes", b:"<p>The share of coach notes that are recorded rather than typed. Coaches are often on the pitch, so voice is common.</p><p>A voice note costs more because the AI first listens and writes it down, then files it like a typed note.</p>"},
+    secs:{t:"Voice note length", b:"<p>How long a typical voice note lasts. Longer recordings cost more to listen to, and the summary that comes back is longer too.</p>"},
+    cq:{t:"Questions per coach a week", b:"<p>Questions a coach types or says to the bot — about a kid's progress, who still needs a note, the training schedule. Coaches can only ask about kids in their own groups.</p><p>This is the dearest single action, because the bot reads the kids' recent notes before answering.</p>"},
+    grpParent:{t:"Parents", b:"<p>How much parents use the bot beyond reading their Sunday report.</p>"},
+    pq:{t:"Questions per parent a week", b:"<p>Questions a parent sends about their own kid — “how is Omar doing?”, “when is the next training?”. The bot only ever sees that parent's own kids.</p>"},
+    relay:{t:"Passed on to the coach", b:"<p>Some questions only the coach can answer — “can she play in goal?”. The bot sends them to the coach and returns the answer to the parent. Passing an answer back is a tiny job done by a cheaper AI.</p>"},
+    trans:{t:"Reports in Arabic or Franco", b:"<p>The share of weekly reports that also need translating because a parent reads in Arabic or Franco (Arabic in Latin letters). The translation is saved, so it is done once per language, not once per parent.</p>"},
+    grpAI:{t:"AI", b:"<p>The artificial-intelligence service that understands coaches' notes, answers questions and writes the weekly reports. It charges for how much it reads and how much it writes.</p>"},
+    model:{t:"Main model", b:"<p>Which AI does the reading and writing. They differ in price, in how well they follow Egyptian Arabic and Franco, and in whether they can listen to voice notes.</p><p>The two prices are per million <b>tokens</b> — small chunks of text, about three-quarters of a word each. The first is for reading, the second for writing.</p>"},
+    noteIn:{t:"Context per note", b:"<p>How much the AI reads to file one note: its standing instructions plus the list of the coach's kids, so it can tell which kid the note is about.</p>"},
+    cqIn:{t:"Context per coach question", b:"<p>How much the AI reads to answer one coach question. It takes two steps — first deciding whether the message is a note or a question, then answering with the relevant kids' recent notes in front of it.</p>"},
+    pqIn:{t:"Context per parent answer", b:"<p>How much the AI reads to answer a parent: its instructions, the training schedule, and that parent's own kids' notes and reports.</p>"},
+    grpTG:{t:"Telegram", b:"<p>Telegram doesn't charge bots for anything: no monthly fee, no fee per message, sent or received. That's the main reason this bot is so cheap compared with a WhatsApp one.</p>"},
+    grpHost:{t:"Hosting", b:"<p>The computer that runs the bot and the dashboard day and night, plus its web address and backups. A fixed amount each month.</p>"},
+    host:{t:"Server", b:"<p>The rented computer the bot and dashboard run on. The bot is small, so the cheapest plans are plenty.</p><p>A computer at the academy works too, at no rent — but it has to stay on. While it's off, the attendance prompts, Friday check and Sunday reports wait until it's back.</p>"},
+    snap:{t:"Backups", b:"<p>A daily copy of everything — kids' profiles, photos, notes and reports — kept in case something breaks. Don't set this to zero.</p>"},
+    dom:{t:"Domain per year", b:"<p>The yearly price of a web address for the dashboard, such as a “.com”. The page spreads it over 12 months.</p>"},
+    grpFX:{t:"Exchange rate", b:"<p>The suppliers charge in US dollars; Egyptian pounds are shown for reference. Rates move, so set today's here.</p>"},
+    egp:{t:"US dollar to Egyptian pound", b:"<p>How many pounds one dollar buys. It only changes the pound figures — the dollar amounts stay the same.</p>"},
+    oneMsg:{t:"What one action costs", b:"<p>What the AI charges for one of each of the bot's paid jobs. These are fractions of a US cent — it's the volume that adds up.</p><p>The server isn't included here; it's in the table further down.</p>"},
+    textNote:{t:"Typed note", b:"<p>A coach types feedback about a kid. The AI works out which kid it's about, turns it into a short note and files it on the kid's profile. The cheapest paid action.</p>"},
+    voiceKind:{t:"Voice note", b:"<p>A coach records feedback. The AI first writes down what was said, then files it like a typed note. The badge shows how much more that costs than typing.</p>"},
+    qKind:{t:"Question answered", b:"<p>What it costs to answer one question from a parent, and (smaller figure) one from a coach. Coach questions cost more because the bot reads more of the kids' history first.</p>"},
+    repKind:{t:"Sunday report", b:"<p>Every Sunday the AI writes each kid's week up from the coach's notes, then translates it for parents who read Arabic or Franco. Sending it to parents on Telegram is free.</p>"},
+    writeDown:{t:"Writing it down", b:"<p>The first step for a voice note: a short instruction (about 270 tokens) plus the recording go in, and the words that were said come out. Then the note is filed like a typed one.</p>"},
+    ctxIn:{t:"Context in", b:"<p>How much the AI reads for each note — its instructions plus the coach's kids — counted in tokens: small chunks of text, about three-quarters of a word each.</p>"},
+    replyOut:{t:"Summary out", b:"<p>How much the AI writes back: the cleaned-up note and which kid it belongs to. Writing costs five times reading per token, so this matters more than its size suggests.</p>"},
+    audIn:{t:"Audio in", b:"<p>The recording itself, counted as about 32 tokens per second of speech. It's sent once, to be written down.</p>"},
+    chart:{t:"Monthly cost as the academy grows", b:"<p>Left to right, the academy gets bigger. Each coloured band is one kind of cost, stacked so the top edge is the total.</p><p>The dot and dashed line mark your current settings. Hover over or tap the chart to read any point.</p>"},
+    table:{t:"Where the money goes", b:"<p>The monthly bill split into its parts — what each is based on, what it costs, its share of the total, and its cost per kid.</p>"},
+    colLine:{t:"Line", b:"<p>Each row is one part of the bill. The three AI rows are split into the jobs inside them.</p>"},
+    colBasis:{t:"Basis", b:"<p>What that part is calculated from — a number of AI calls, or a fixed monthly fee.</p>"},
+    colMonthly:{t:"Monthly", b:"<p>What that part costs in one month, in US dollars.</p>"},
+    colShare:{t:"Share", b:"<p>That part's slice of the whole monthly bill. The bar shows the same thing at a glance.</p>"},
+    colPer:{t:"Per kid", b:"<p>That part's monthly cost divided by the number of enrolled kids.</p>"},
+    "row-notes":{t:"Coach notes", b:"<p>The AI understanding coaches' feedback and filing it on the right kid's profile, split into typed and voice notes.</p>"},
+    "row-qa":{t:"Questions answered", b:"<p>The AI answering coaches' and parents' questions, plus passing coach answers back to parents.</p>"},
+    "row-rep":{t:"Sunday reports", b:"<p>The AI writing each kid's weekly report and translating it for Arabic and Franco readers.</p>"},
+    "row-tg":{t:"Telegram", b:"<p>Telegram charges bots nothing, however many messages they send. This line stays at zero at every size.</p>"},
+    "row-infra":{t:"Hosting + domain", b:"<p>The server that runs the bot and dashboard, its backups and its web address. A fixed amount each month.</p>"},
+    cliff:{t:"Why Telegram, not WhatsApp", b:"<p>WhatsApp charges businesses a monthly fee through an approved provider, and from 1 October 2026 a small fee per message beyond 1,000 free a month. Messages the business starts — like a Sunday report — also need pre-approved templates.</p><p>This box estimates what running the same bot on WhatsApp would add at your settings.</p>"},
+    measured:{t:"Measured here", b:"<p>Figures taken from the bot's own test run — how much text each job actually used — instead of estimates.</p>"},
+    free:{t:"What costs nothing", b:"<p>The parts of the bot that never call the AI or are free on Telegram, so they don't appear in the bill at all.</p>"},
+    excluded:{t:"Deliberately excluded", b:"<p>What this page leaves out, so the total isn't mistaken for the full cost of the project — mainly people's time.</p>"},
+    foot:{t:"Where the prices come from", b:"<p>The date the prices were last checked, and their sources: the OpenRouter model catalogue and the hosting companies' published price lists. The token counts were measured from the bot itself on 20 Oct 2026. Prices change, so check again before signing anything.</p>"}
+  };
+
+  var pop = $("infoPop"), live = $("infoLive"), anchor = null;
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var clamp = function(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); };
+
+  /** Give every i button its glyph and a name a screen reader can say. */
+  function labelInfo(root){
+    Array.prototype.forEach.call((root || document).querySelectorAll("button.info"), function(b){
+      var it = INFO[b.getAttribute("data-info")];
+      if (!it || b.hasAttribute("aria-label")) return;
+      b.type = "button";
+      b.textContent = "i";
+      b.setAttribute("aria-label", "Explain: " + it.t);
+      b.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  /**
+   * Place a fixed element next to a rectangle, trying each side in turn and
+   * never leaving the screen. With no room anywhere it sits at the bottom.
+   */
+  function placeNear(el, r, order){
+    var M = 16, G = 12, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var w = el.offsetWidth, h = el.offsetHeight;
+    var spots = {
+      below:{ top:r.bottom + G, left:r.left + r.width/2 - w/2, ok:r.bottom + G + h <= vh - M },
+      above:{ top:r.top - G - h, left:r.left + r.width/2 - w/2, ok:r.top - G - h >= M },
+      right:{ top:r.top + r.height/2 - h/2, left:r.right + G, ok:r.right + G + w <= vw - M },
+      left: { top:r.top + r.height/2 - h/2, left:r.left - G - w, ok:r.left - G - w >= M }
+    };
+    var s = null;
+    for (var i = 0; i < order.length && !s; i++) if (spots[order[i]].ok) s = spots[order[i]];
+    if (!s) s = { top:vh - h - M, left:(vw - w)/2 };
+    el.style.left = Math.round(clamp(s.left, M, Math.max(M, vw - w - M))) + "px";
+    el.style.top  = Math.round(clamp(s.top,  M, Math.max(M, vh - h - M))) + "px";
+  }
+
+  function openInfo(btn){
+    var it = INFO[btn.getAttribute("data-info")]; if (!it) return;
+    if (anchor) anchor.setAttribute("aria-expanded", "false");
+    anchor = btn; btn.setAttribute("aria-expanded", "true");
+    pop.innerHTML = '<button type="button" class="x" aria-label="Close" tabindex="-1">×</button><h4>' + it.t + '</h4>' + it.b;
+    pop.hidden = false;
+    placePop();
+    // The visible card is for the eye; this always-present region is what a
+    // screen reader announces.
+    live.textContent = "";
+    setTimeout(function(){ live.textContent = it.t + ". " + pop.textContent.replace(/^×/, "").replace(it.t, "").trim(); }, 40);
+  }
+  function closeInfo(){
+    if (!anchor) return;
+    anchor.setAttribute("aria-expanded", "false");
+    anchor = null; pop.hidden = true; pop.innerHTML = "";
+  }
+  function placePop(){
+    if (!anchor) return;
+    if (!document.body.contains(anchor)) return closeInfo();
+    var r = anchor.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) return closeInfo();
+    placeNear(pop, r, ["below", "above", "right", "left"]);
+  }
+
+  document.addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button.info") : null;
+    if (b){
+      e.preventDefault(); e.stopPropagation();          // also keeps a fold from toggling
+      if (anchor === b) closeInfo(); else openInfo(b);
+      return;
+    }
+    if (pop.contains(e.target)){ if (e.target.closest(".x")){ var a = anchor; closeInfo(); if (a) a.focus(); } return; }
+    if (anchor) closeInfo();
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && anchor && !T){ var a = anchor; closeInfo(); a.focus(); }
+  });
+
+
+  /* ================= guided tour ================= */
+  var STEPS = [
+    { sel:".masthead", title:"A quick tour",
+      body:"This page works out what the academy's Telegram bot and dashboard cost to run each month. It's a calculator, not a bill: you change the settings, it does the sums. The tour takes about a minute." },
+    { sel:"#scen", title:"Start with the academy's size",
+      body:"Each button is a ready-made academy size, in enrolled kids. Tap one and every number on the page updates." },
+    { sel:"#leadCell", title:"The answer",
+      body:"What one month costs in total, in US dollars, with Egyptian pounds underneath." },
+    { sel:"#headline", title:"The same bill, three more ways",
+      body:"What it costs per kid, how many AI jobs that is in a month, and which single cost is the biggest." },
+    { sel:"#rail", title:"The settings behind the numbers", prefer:["right", "left", "below", "above"],
+      body:"Everything the total depends on. Slide or pick to change a setting. <b>Assumed</b> marks our guesses; <b>measured</b> marks figures from the bot's own calls." },
+    { sel:"#ctlKids", title:"The setting that matters most",
+      body:"Kids enrolled drives almost everything. Put your real number here." },
+    { sel:"#foldAI > summary", title:"Technical bits are folded away",
+      body:"Detail you can safely ignore is tucked inside headings like this one. Tap a heading to open it, and tap again to close it." },
+    { sel:"#oneMsg", title:"The cost of a single action",
+      body:"What the AI charges to file one note, answer one question and write one Sunday report. Fractions of a cent — it's the volume that adds up." },
+    { sel:"#chartPanel", title:"How the bill grows",
+      body:"Left to right, the academy gets bigger. Each colour is one kind of cost, stacked so the top edge is the total. The dot is you. Hover or tap the chart to read any point." },
+    { sel:"#moneyTable", title:"Where the money goes",
+      body:"The bill split into its parts: what each is based on, what it costs a month, its share and its cost per kid." },
+    { sel:"#cliff", title:"Why it's this cheap",
+      body:"Telegram charges bots nothing. This box shows what the same bot would add on WhatsApp at your settings." },
+    { sel:"#leadCell .info", title:"Stuck on a word?", pad:7, round:true,
+      body:"Tap any <span class=\"info-mark\">i</span> for a plain-language explanation of that item. There's one next to every number and every setting." },
+    { sel:"#tourBtn", title:"That's the tour", pad:6,
+      body:"You can take it again any time from this button." }
+  ];
+  var T = null, KEY = "academycosts.tour", tracking = null;
+  var seen = function(){ try { return localStorage.getItem(KEY) === "done"; } catch (e) { return false; } };
+  var markSeen = function(){ try { localStorage.setItem(KEY, "done"); } catch (e) {} };
+  var wrapEl = document.querySelector(".wrap");
+
+  function startTour(){
+    if (T) return;
+    closeInfo();
+    var veil = document.createElement("div"), hole = document.createElement("div"), card = document.createElement("div");
+    veil.className = "tour-veil"; hole.className = "tour-hole"; card.className = "tour-card";
+    card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true");
+    card.setAttribute("aria-labelledby", "tourTitle"); card.setAttribute("aria-describedby", "tourBody");
+    card.tabIndex = -1;
+    document.body.appendChild(veil); document.body.appendChild(hole); document.body.appendChild(card);
+    T = { i:0, veil:veil, hole:hole, card:card, back:document.activeElement };
+    if (wrapEl) wrapEl.inert = true;                   // the page behind can't be clicked or tabbed to
+    card.addEventListener("click", function(e){
+      var b = e.target.closest("button[data-t]"); if (!b) return;
+      var a = b.getAttribute("data-t");
+      if (a === "next") go(T.i + 1); else if (a === "back") go(T.i - 1); else endTour();
+    });
+    go(0);
+  }
+
+  function go(i){
+    if (!T) return;
+    if (i >= STEPS.length) return endTour();
+    T.i = Math.max(0, i);
+    var s = STEPS[T.i], n = STEPS.length, last = T.i === n - 1;
+    T.card.innerHTML =
+      '<div class="tour-meta"><span>' + (T.i + 1) + ' / ' + n + '</span>' +
+      '<span class="tour-prog"><i style="width:' + Math.round((T.i + 1) / n * 100) + '%"></i></span></div>' +
+      '<h3 id="tourTitle">' + s.title + '</h3><p id="tourBody">' + s.body + '</p>' +
+      '<div class="tour-acts">' +
+        (last ? '<span style="margin-right:auto"></span>' : '<button type="button" class="tbtn skip" data-t="skip">Skip tour</button>') +
+        (T.i ? '<button type="button" class="tbtn" data-t="back">Back</button>' : '') +
+        '<button type="button" class="tbtn go" data-t="next">' + (last ? "Done" : "Next") + '</button></div>';
+    var t = document.querySelector(s.sel);
+    // A scroll made here is the tour's own: the highlight should glide to the
+    // new spot, not snap the way it does when the reader scrolls.
+    T.quietUntil = performance.now() + 150;
+    if (t) bringIntoView(t);
+    place();
+    var nb = T.card.querySelector('[data-t="next"]');
+    if (nb) nb.focus({ preventScroll:true });
+  }
+
+  /** Scroll only when the target isn't already in view, leaving room for the card on a phone. */
+  function bringIntoView(t){
+    var r = t.getBoundingClientRect(), vh = window.innerHeight;
+    var phone = document.documentElement.clientWidth < 700;
+    var floor = phone ? vh * 0.52 : vh - 16;
+    if (r.top >= 16 && r.bottom <= floor) return;
+    var tall = r.height > floor - 32;
+    var y = window.scrollY + r.top - (tall || phone ? 24 : Math.max(24, (vh - r.height) / 2));
+    window.scrollTo({ top:Math.max(0, y), behavior:"auto" });
+  }
+
+  function place(){
+    if (!T) return;
+    var s = STEPS[T.i], t = document.querySelector(s.sel); if (!t) return;
+    var r = t.getBoundingClientRect(), pad = s.pad == null ? 8 : s.pad;
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var top = clamp(r.top - pad, 6, vh - 6), bottom = clamp(r.bottom + pad, 6, vh - 6);
+    var left = clamp(r.left - pad, 6, vw - 6), right = clamp(r.right + pad, 6, vw - 6);
+    var box = T.hole.style;
+    box.top = top + "px"; box.left = left + "px";
+    box.width = Math.max(0, right - left) + "px"; box.height = Math.max(0, bottom - top) + "px";
+    box.borderRadius = s.round ? "50%" : "12px";
+    var rect = { top:top, bottom:bottom, left:left, right:right, width:right - left, height:bottom - top };
+    var order = s.prefer || (rect.width > vw * 0.55 ? ["below", "above", "right", "left"] : ["below", "right", "above", "left"]);
+    placeNear(T.card, rect, order);
+  }
+
+  function endTour(){
+    if (!T) return;
+    markSeen();
+    [T.veil, T.hole, T.card].forEach(function(el){ el.remove(); });
+    if (wrapEl) wrapEl.inert = false;
+    var back = T.back; T = null;
+    document.documentElement.classList.remove("tracking");
+    var btn = $("tourBtn");
+    (back && back !== document.body && document.body.contains(back) ? back : btn).focus({ preventScroll:true });
+  }
+
+  document.addEventListener("keydown", function(e){
+    if (!T) return;
+    if (e.key === "Escape"){ e.preventDefault(); endTour(); }
+    else if (e.key === "ArrowRight"){ e.preventDefault(); go(T.i + 1); }
+    else if (e.key === "ArrowLeft"){ e.preventDefault(); go(T.i - 1); }
+    else if (e.key === "Tab"){
+      // keep keyboard focus inside the tour card while it is open
+      var f = Array.prototype.slice.call(T.card.querySelectorAll("button"));
+      if (!f.length) return;
+      var i = f.indexOf(document.activeElement);
+      e.preventDefault();
+      f[(i + (e.shiftKey ? f.length - 1 : 1) + f.length) % f.length].focus();
+    }
+  });
+
+  // Follow the page when it scrolls or resizes — instantly, not with the glide
+  // used between steps, so the highlight never trails behind what it marks.
+  var queued = false;
+  function follow(){
+    if (!T && !anchor) return;
+    if (T && performance.now() > (T.quietUntil || 0)){
+      document.documentElement.classList.add("tracking");
+      clearTimeout(tracking);
+      tracking = setTimeout(function(){ document.documentElement.classList.remove("tracking"); }, 160);
+    }
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ queued = false; if (T) place(); placePop(); });
+  }
+  window.addEventListener("scroll", follow, { passive:true });
+  window.addEventListener("resize", follow);
+
+  /* ================= wiring ================= */
+  Array.prototype.forEach.call(document.querySelectorAll("input,select"), function(el){
+    el.addEventListener("input", render);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#scen .chip"), function(b){
+    b.addEventListener("click", function(){ $("kids").value = b.dataset.k; render(); });
+  });
+  // pointer events cover the mouse and a finger alike: tap the chart to read it
+  $("svg").addEventListener("pointermove", hover);
+  $("svg").addEventListener("pointerdown", hover);
+  $("svg").addEventListener("pointerleave", function(){ $("tip").classList.remove("on"); });
+  $("themer").addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    render();
+  });
+
+
+  labelInfo(document);
+  render();
+
+  // First visit: the tour starts on its own, a moment after the page has
+  // settled. After that it waits for the button (or a link ending in #tour).
+  function autoTour(){
+    if (document.visibilityState === "visible") setTimeout(startTour, reduced ? 200 : 900);
+    else document.addEventListener("visibilitychange", function once(){
+      if (document.visibilityState !== "visible") return;
+      document.removeEventListener("visibilitychange", once);
+      setTimeout(startTour, 600);
+    });
+  }
+  if (!seen() || location.hash === "#tour") autoTour();
+})();
+</script>
+</body>
+</html>
